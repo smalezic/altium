@@ -8,66 +8,10 @@
 
     public static class FileProcessor
     {
-        public static async Task SortLargeFile(string outputFile, string tempFilesFolder)
-        {
-            var tempFiles = GetFiles(tempFilesFolder);
-            var heap = new SortedDictionary<string, Queue<LineInfo>>();
-
-            using (var outputFileStream = new StreamWriter(outputFile))
-            {
-                List<StreamReader> readers = new List<StreamReader>();
-
-                foreach (var tempFile in tempFiles)
-                {
-                    readers.Add(new StreamReader(tempFile));
-                }
-
-                int readerId = 0;
-
-                foreach (var reader in readers)
-                {
-                    ParseLine(heap, readerId, reader);
-
-                    ++readerId;
-                }
-
-                while (heap.Count > 0)
-                {
-                    var minKey = heap.Keys.Min();
-                    var minValue = heap[minKey].Dequeue();
-                    readerId = minValue.ReaderId;
-                    var minLine = minValue.Line;
-                    
-                    heap.Remove(minKey);
-
-                    ParseLine(heap, readerId, readers[readerId]);
-
-                    outputFileStream.WriteLine(minLine);
-                }
-
-                foreach (var reader in readers)
-                {
-                    reader.Close();
-                }
-            }
-
-            // Clean up temporary files
-            //foreach (var tempFile in tempFiles)
-            //{
-            //    File.Delete(tempFile);
-            //}
-        }
-
-        public static List<string> GetFiles(string folderName)
-        {
-            return Directory
-                .EnumerateFiles(folderName)
-                .ToList();
-        }
 
         public static async Task SplitFileAndSortChunks(string inputFile, string tempFilesFolder)
         {
-            int limit = 10000;
+            int limit = 1000000;
             int lineNumber = 0;
             bool done = false;
             int chunkIndex = 0;
@@ -122,6 +66,66 @@
                     heap.Clear();
                 }
             }
+        }
+        public static async Task SortLargeFile(string outputFile, string tempFilesFolder)
+        {
+            var tempFiles = GetFiles(tempFilesFolder);
+            var heap = new SortedDictionary<string, Queue<LineInfo>>();
+
+            using (var outputFileStream = new StreamWriter(outputFile))
+            {
+                List<StreamReader> readers = new List<StreamReader>();
+
+                foreach (var tempFile in tempFiles)
+                {
+                    readers.Add(new StreamReader(tempFile));
+                }
+
+                int readerId = 0;
+
+                foreach (var reader in readers)
+                {
+                    ParseLine(heap, readerId, reader);
+
+                    ++readerId;
+                }
+
+                while (heap.Count > 0)
+                {
+                    var minKey = heap.Keys.Min();
+                    var minValue = heap[minKey].Dequeue();
+                    readerId = minValue.ReaderId;
+                    var minLine = minValue.Line;
+                    
+                    heap.Remove(minKey);
+
+                    ParseLine(heap, readerId, readers[readerId]);
+
+                    outputFileStream.WriteLine(minLine);
+                }
+
+                foreach (var reader in readers)
+                {
+                    reader.Close();
+                }
+            }
+        }
+
+        public static void Clean(string tempFilesFolder)
+        {
+            // Clean up temporary files
+            var tempFiles = GetFiles(tempFilesFolder);
+            foreach (var tempFile in tempFiles)
+            {
+                File.Delete(tempFile);
+            }
+        }
+
+        private static List<string> GetFiles(string folderName)
+        {
+            return Directory
+                .EnumerateFiles(folderName)
+                .ToList();
         }
 
         private static void ParseLine(SortedDictionary<string, Queue<LineInfo>> heap, int readerId, StreamReader reader)

@@ -3,19 +3,32 @@ using Altium.Application.SortingEngine;
 
 Console.WriteLine("Hello, World!");
 
-var inputFileName = @"D:\Temp\FileCreator\file.txt";
-string outputFileName = @"D:\Temp\FileCreator\outputExample.txt";
+var inputFileName = @"D:\Temp\FileCreator\file1G.txt";
+string outputFileName = @"D:\Temp\FileCreator\output1G.txt";
 string tempFilesFolder = @"D:\Temp\FileCreator\X";
 
-//FileCreator.Create(inputFileName, 102400000);
+DateTime startTime = DateTime.UtcNow;
 
-//await FileProcessor.SplitFile(inputFileName);
+Console.WriteLine($"Start time: {startTime.ToLocalTime()}");
 
-//await FileProcessor.SortLargeFile(inputFileName, outputFileName);
+FileCreator.Create(inputFileName, 1024000000);
+
+var currentTime = DateTime.UtcNow;
+Console.WriteLine($"Creation time: {currentTime - startTime}");
 
 await FileProcessor.SplitFileAndSortChunks(inputFileName, tempFilesFolder);
+Console.WriteLine($"Splitting time: {DateTime.UtcNow - currentTime}");
+currentTime = DateTime.UtcNow;
 
 await FileProcessor.SortLargeFile(outputFileName, tempFilesFolder);
+Console.WriteLine($"Sorting time: {DateTime.UtcNow - currentTime}");
+currentTime = DateTime.UtcNow;
+
+FileProcessor.Clean(tempFilesFolder);
+Console.WriteLine($"Cleaning time: {DateTime.UtcNow - currentTime}");
+currentTime = DateTime.UtcNow;
+Console.WriteLine($"Stop time: {currentTime.ToLocalTime()}");
+Console.WriteLine($"Working time: {currentTime - startTime}");
 
 Console.WriteLine("Press any key to exit...");
 Console.ReadKey();
