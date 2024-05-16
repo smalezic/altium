@@ -1,9 +1,31 @@
 ﻿namespace Altium.Application.SortingEngine
 {
-    internal struct LineInfo
+    internal record LineInfo
     {
-        public int ReaderId { get; set; }
-        public string Line { get; set; }
+        public string Line { get; init; }
+        public int IntPart { get; init; }
+        public string StringPart { get; init; }
+    }
+
+    internal class LineComparer : IComparer<LineInfo>
+    {
+        public int Compare(LineInfo? x, LineInfo? y)
+        {
+            int lineComparison = string.Compare(x.StringPart, y.StringPart);
+
+            if(lineComparison == 0)
+            {
+                return x.IntPart.CompareTo(y.IntPart);
+            }
+
+            return lineComparison;
+        }
+    }
+
+    internal record LineInfoReader
+    {
+        public int ReaderId { get; init; }
+        public string Line { get; init; }
     }
 
     public static class FileProcessor
@@ -11,14 +33,15 @@
 
         public static async Task SplitFileAndSortChunks(string inputFile, string tempFilesFolder)
         {
-            int limit = 1000000;
+            //int limit = 1000000;
+            int limit = 5;
             int lineNumber = 0;
             bool done = false;
             int chunkIndex = 0;
 
             using (var reader = new StreamReader(inputFile))
             {
-                var heap = new SortedDictionary<string, Queue<string>>();
+                var heap = new SortedDictionary<LineInfo, Queue<string>>(new LineComparer());
 
                 while (!done)
                 {
@@ -67,10 +90,13 @@
                 }
             }
         }
+
+        private static LineComparer comparer = new LineComparer();
+
         public static async Task SortLargeFile(string outputFile, string tempFilesFolder)
         {
             var tempFiles = GetFiles(tempFilesFolder);
-            var heap = new SortedDictionary<string, Queue<LineInfo>>();
+            var heap = new SortedDictionary<LineInfo, Queue<LineInfoReader>>(comparer);
 
             using (var outputFileStream = new StreamWriter(outputFile))
             {
@@ -90,18 +116,26 @@
                     ++readerId;
                 }
 
-                while (heap.Count > 0)
+                try
                 {
-                    var minKey = heap.Keys.Min();
-                    var minValue = heap[minKey].Dequeue();
-                    readerId = minValue.ReaderId;
-                    var minLine = minValue.Line;
-                    
-                    heap.Remove(minKey);
+                    while (heap.Count > 0)
+                    {
+                        var minKey = heap.First().Key;
+                        var minValue = heap[minKey].Dequeue();
+                        readerId = minValue.ReaderId;
+                        var minLine = minValue.Line;
 
-                    ParseLine(heap, readerId, readers[readerId]);
+                        heap.Remove(minKey);
 
-                    outputFileStream.WriteLine(minLine);
+                        ParseLine(heap, readerId, readers[readerId]);
+
+                        outputFileStream.WriteLine(minLine);
+                    }
+                }
+                catch (Exception exc)
+                {
+                    Console.WriteLine(exc);
+                    throw;
                 }
 
                 foreach (var reader in readers)
@@ -128,7 +162,7 @@
                 .ToList();
         }
 
-        private static void ParseLine(SortedDictionary<string, Queue<LineInfo>> heap, int readerId, StreamReader reader)
+        private static void ParseLine(SortedDictionary<LineInfo, Queue<LineInfoReader>> heap, int readerId, StreamReader reader)
         {
             var line = reader.ReadLine();
             if (line != null)
@@ -137,17 +171,24 @@
 
                 if (!heap.ContainsKey(key))
                 {
-                    heap.Add(key, new Queue<LineInfo>());
+                    heap.Add(key, new Queue<LineInfoReader>());
                 }
 
-                heap[key].Enqueue(new LineInfo { ReaderId = readerId, Line = line });
+                heap[key].Enqueue(new LineInfoReader { ReaderId = readerId, Line = line });
             }
         }
 
-        private static string? CreateKey(string line)
+        //private static string? CreateKey(string line)
+        private static LineInfo CreateKey(string line)
         {
             var split = line.Split(new[] { '.' }, 2);
-            return split[1] + split[0]; // String part first, then number part
+            //return split[1] + split[0]; // String part first, then number part
+            return new LineInfo
+            {
+                Line = line,
+                IntPart = int.Parse(split[0]),
+                StringPart = split[1]
+            };
         }
     }
 }
