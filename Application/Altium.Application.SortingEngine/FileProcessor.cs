@@ -12,9 +12,6 @@ namespace Altium.Application.SortingEngine
             string tempFilesFolder,
             long limit)
         {
-            //int limit = 1000000;
-            //int limit = 5;
-
             bool done = false;
             int lineNumber = -1;
             int chunkIndex = 0;
