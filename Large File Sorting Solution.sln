@@ -5,11 +5,15 @@ VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{038A2996-D2AF-4A01-9D44-20F2F536C0A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Altium.Application.SortingEngine", "Application\Altium.Application.SortingEngine\Altium.Application.SortingEngine.csproj", "{67193261-93F4-4D0C-9FFA-68BA4AA16438}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Altium.Application.SortingEngine", "Application\Altium.Application.SortingEngine\Altium.Application.SortingEngine.csproj", "{67193261-93F4-4D0C-9FFA-68BA4AA16438}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{36372DF2-0487-48FC-B176-15EC0BDED7EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleAppHost", "Presentation\ConsoleAppHost\ConsoleAppHost.csproj", "{B596EB2B-9D96-4486-BD0A-A5C5A0C2EC31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleAppHost", "Presentation\ConsoleAppHost\ConsoleAppHost.csproj", "{B596EB2B-9D96-4486-BD0A-A5C5A0C2EC31}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{6565BFAF-3756-4865-B2E4-6EC6F93B2B4C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Altium.Domain", "Altium.Domain\Altium.Domain.csproj", "{EC9B62CE-31FB-4144-B752-7E78E30AC25B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +29,10 @@ Global
 		{B596EB2B-9D96-4486-BD0A-A5C5A0C2EC31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B596EB2B-9D96-4486-BD0A-A5C5A0C2EC31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B596EB2B-9D96-4486-BD0A-A5C5A0C2EC31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC9B62CE-31FB-4144-B752-7E78E30AC25B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC9B62CE-31FB-4144-B752-7E78E30AC25B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC9B62CE-31FB-4144-B752-7E78E30AC25B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC9B62CE-31FB-4144-B752-7E78E30AC25B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +40,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{67193261-93F4-4D0C-9FFA-68BA4AA16438} = {038A2996-D2AF-4A01-9D44-20F2F536C0A3}
 		{B596EB2B-9D96-4486-BD0A-A5C5A0C2EC31} = {36372DF2-0487-48FC-B176-15EC0BDED7EC}
+		{EC9B62CE-31FB-4144-B752-7E78E30AC25B} = {6565BFAF-3756-4865-B2E4-6EC6F93B2B4C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AB7F4BFB-C203-4181-B3C9-F7477259FFE2}

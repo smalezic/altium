@@ -1,34 +1,62 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using System.Runtime.CompilerServices;
 using Altium.Application.SortingEngine;
 
-Console.WriteLine("Hello, World!");
+try
+{
+    Console.WriteLine("Enter the name of the source file");
+    Console.WriteLine("(Correct folder path must be specified. If the file in the folder doesn't exist it will be created)");
+    var inputFileName = Console.ReadLine();
+    var folderPath = Path.GetDirectoryName(inputFileName);
+    var outputFileName = Path.Combine(folderPath!, "Output.txt");
+    string tempFilesFolder = Path.Combine(folderPath!, "Temp");
+    Directory.CreateDirectory(tempFilesFolder);
 
-var inputFileName = @"D:\Temp\FileCreator\file1G.txt";
-string outputFileName = @"D:\Temp\FileCreator\output1G.txt";
-string tempFilesFolder = @"D:\Temp\FileCreator\X";
+    DateTime startTime = DateTime.UtcNow;
+    DateTime currentTime = DateTime.UtcNow;
 
-DateTime startTime = DateTime.UtcNow;
+    Console.WriteLine($"Start time: {startTime.ToLocalTime()}");
 
-Console.WriteLine($"Start time: {startTime.ToLocalTime()}");
+    if(!File.Exists(inputFileName))
+    {
+        Console.WriteLine($"The file '{inputFileName}' does not exist, it will be created");
+        Console.WriteLine("Enter the size of the file (in bytes):");
+        var size = Console.ReadLine();
+        int.TryParse(size, out int sizeInBytes);
+        FileCreator.Create(inputFileName!, sizeInBytes);
+        
+        currentTime = DateTime.UtcNow;
+        Console.WriteLine($"Creation time: {currentTime - startTime}");
+    }
 
-FileCreator.Create(inputFileName, 1024000000);
+    var tmpFileSizeInBytes = GetFileSize(inputFileName);
 
-var currentTime = DateTime.UtcNow;
-Console.WriteLine($"Creation time: {currentTime - startTime}");
+    Console.WriteLine("Sorting is started...");
+    FileProcessor.SplitFileAndSortChunks(inputFileName!, tempFilesFolder, tmpFileSizeInBytes / 10);
+    Console.WriteLine($"Splitting time: {DateTime.UtcNow - currentTime}");
+    currentTime = DateTime.UtcNow;
 
-await FileProcessor.SplitFileAndSortChunks(inputFileName, tempFilesFolder);
-Console.WriteLine($"Splitting time: {DateTime.UtcNow - currentTime}");
-currentTime = DateTime.UtcNow;
+    FileProcessor.CombineSortedFiles(outputFileName, tempFilesFolder);
+    
+    Console.WriteLine($"Sorting time: {DateTime.UtcNow - currentTime}");
+    currentTime = DateTime.UtcNow;
 
-await FileProcessor.SortLargeFile(outputFileName, tempFilesFolder);
-Console.WriteLine($"Sorting time: {DateTime.UtcNow - currentTime}");
-currentTime = DateTime.UtcNow;
+    FileProcessor.Clean(tempFilesFolder);
+    Console.WriteLine($"Cleaning time: {DateTime.UtcNow - currentTime}");
+    currentTime = DateTime.UtcNow;
+    Console.WriteLine($"Stop time: {currentTime.ToLocalTime()}");
+    Console.WriteLine($"Working time: {currentTime - startTime}");
 
-FileProcessor.Clean(tempFilesFolder);
-Console.WriteLine($"Cleaning time: {DateTime.UtcNow - currentTime}");
-currentTime = DateTime.UtcNow;
-Console.WriteLine($"Stop time: {currentTime.ToLocalTime()}");
-Console.WriteLine($"Working time: {currentTime - startTime}");
+    long GetFileSize(string inputFileName)
+    {
+        FileInfo fileInfo = new FileInfo(inputFileName);
+        return fileInfo.Length;
+    }
+}
+catch (Exception exc)
+{
+    Console.WriteLine($"An error occured: {exc.Message}");
+}
+
 
 Console.WriteLine("Press any key to exit...");
 Console.ReadKey();
