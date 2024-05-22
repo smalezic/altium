@@ -13,37 +13,35 @@ namespace Altium.Application.SortingEngine
             long limit)
         {
             bool done = false;
-            int lineNumber = -1;
             int chunkIndex = 0;
 
             using (var reader = new StreamReader(inputFile))
             {
-                var heap = new SortedDictionary<LineInfo, Queue<string>>(new LineComparer());
-
                 while (!done)
                 {
+                    long lineLength = 0;
                     // Get a line from the file, split it on two parts and put them into the data structure
-                    ExtractLineFromFile(limit, ++lineNumber, reader, heap);
+                    var heap = ExtractLineFromFile(limit, ref lineLength, reader);
 
                     // Create temp file
                     CreateTempFile(tempFilesFolder, ++chunkIndex, heap);
 
-                    if (lineNumber < limit)
+                    if (lineLength < limit)
                     {
                         // If there is no more lines in the file, the method is done
                         done = true;
                     }
 
-                    lineNumber = 0; // Reset it to 0 for a new file
                     heap.Clear();
                 }
             }
 
-            static void ExtractLineFromFile(long limit, long lineNumber, StreamReader reader, SortedDictionary<LineInfo, Queue<string>> heap)
+            static SortedDictionary<LineInfo, Queue<string>> ExtractLineFromFile(long limit, ref long lineLength, StreamReader reader)
             {
+                var heap = new SortedDictionary<LineInfo, Queue<string>>(new LineComparer());
                 string? line;
 
-                while (lineNumber < limit
+                while (lineLength < limit
                     && (line = reader.ReadLine()) is not null)
                 {
                     var key = CreateKey(line);
@@ -54,7 +52,11 @@ namespace Altium.Application.SortingEngine
                     }
 
                     heap[key].Enqueue(line);
+
+                    lineLength += line.Length;
                 }
+
+                return heap;
             }
 
             static void CreateTempFile(string tempFilesFolder, int chunkIndex, SortedDictionary<LineInfo, Queue<string>> heap)

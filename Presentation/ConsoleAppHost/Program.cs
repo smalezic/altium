@@ -21,17 +21,17 @@ try
         Console.WriteLine($"The file '{inputFileName}' does not exist, it will be created");
         Console.WriteLine("Enter the size of the file (in bytes):");
         var size = Console.ReadLine();
-        int.TryParse(size, out int sizeInBytes);
+        long.TryParse(size, out long sizeInBytes);
         FileCreator.Create(inputFileName!, sizeInBytes);
         
         currentTime = DateTime.UtcNow;
         Console.WriteLine($"Creation time: {currentTime - startTime}");
     }
 
-    var tmpFileSizeInBytes = GetFileSize(inputFileName);
+    var tmpFileSizeInBytes = GetFileSize(inputFileName!);
 
     Console.WriteLine("Sorting is started...");
-    FileProcessor.SplitFileAndSortChunks(inputFileName!, tempFilesFolder, tmpFileSizeInBytes / 10);
+    FileProcessor.SplitFileAndSortChunks(inputFileName!, tempFilesFolder, tmpFileSizeInBytes);
     Console.WriteLine($"Splitting time: {DateTime.UtcNow - currentTime}");
     currentTime = DateTime.UtcNow;
 
@@ -49,7 +49,7 @@ try
     long GetFileSize(string inputFileName)
     {
         FileInfo fileInfo = new FileInfo(inputFileName);
-        return fileInfo.Length;
+        return fileInfo.Length / 100;
     }
 }
 catch (Exception exc)
